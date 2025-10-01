@@ -5,7 +5,7 @@ from datetime import date
 
 # Legge token HuggingFace dai secrets
 HF_TOKEN = os.getenv("HF_TOKEN")
-MODEL = "tiiuae/falcon-7b-instruct"
+MODEL = "HuggingFaceH4/zephyr-7b-beta"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}",
@@ -30,11 +30,25 @@ for segno in segni:
         json={"inputs": prompt, "parameters": {"max_new_tokens": 180}}
     )
     
-    if response.status_code == 200:
-        testo = response.json()[0]["generated_text"]
+  if response.status_code == 200:
+    try:
+        data = response.json()
+        # Alcuni modelli ritornano una lista di dict con 'generated_text'
+        if isinstance(data, list) and "generated_text" in data[0]:
+            testo = data[0]["generated_text"]
+        # Altri ritornano 'generated_text' direttamente
+        elif "generated_text" in data:
+            testo = data["generated_text"]
+        # Oppure 'generated_text' dentro 'choices' (come OpenAI)
+        elif "choices" in data and "text" in data["choices"][0]:
+            testo = data["choices"][0]["text"]
+        else:
+            testo = "Formato sconosciuto: " + str(data)
         oroscopi[segno] = testo.strip()
-    else:
-        oroscopi[segno] = "Errore nel generare l'oroscopo."
+    except Exception as e:
+        oroscopi[segno] = f"Errore parsing risposta: {e}"
+else:
+    oroscopi[segno] = f"Errore API HuggingFace: {response.status_code} {response.text}"
 
 # Salva in JSON
 filename = "oroscopo.json"
@@ -48,3 +62,4 @@ data[oggi] = oroscopi
 
 with open(filename, "w") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
+
