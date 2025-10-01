@@ -4,24 +4,21 @@ from datetime import date
 from google import genai
 from google.genai.errors import APIError
 import time
+import re # Usato per pulire l'intestazione e sostituire i doppi asterischi
 
 # --- Configurazione API ---
-# La chiave viene letta automaticamente dalla variabile d'ambiente GEMINI_API_KEY
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
     print("[ERRORE] La variabile d'ambiente 'GEMINI_API_KEY' non è impostata. Impossibile procedere.")
     exit(1)
 
-# Inizializzazione del client Gemini
 try:
     client = genai.Client(api_key=API_KEY)
 except Exception as e:
-    # Cattura errori nell'inizializzazione del client
     print(f"[ERRORE] Impossibile inizializzare il client Gemini: {e}")
     exit(1)
 
-# Modello consigliato: Gemini 2.5 Flash, veloce ed economico
 MODEL = "gemini-2.5-flash" 
 
 # --- Dati di Base ---
@@ -41,6 +38,7 @@ for segno in segni:
     prompt = (
         f"Scrivi un oroscopo giornaliero creativo e originale per il segno {segno} per oggi, {oggi}. "
         f"Includi solo Amore, Lavoro e Fortuna, in tono poetico ma chiaro. Non usare più di 80 parole."
+        f"IMPORTANTE: NON INCLUDERE MAI IL NOME DEL SEGNO O LA DATA ALL'INIZIO DEL TESTO. NON USARE MAI GLI ASTERISCHI PER IL GRASSETTO, USA DIRETTAMENTE I TAG HTML <b> E </b>." # Istruzione extra rafforzata
     )
 
     try:
@@ -48,25 +46,40 @@ for segno in segni:
             model=MODEL,
             contents=[prompt],
             config={
-                "temperature": 0.9, # Aumenta la creatività del testo
+                "temperature": 0.9,
             }
         )
         
-        # Estrai il testo generato
         testo = response.text.strip()
-        oroscopi[segno] = testo
         
+        # --- LOGICA DI PULIZIA AGGIUNTA/MODIFICATA QUI ---
+        
+        # 1. Sostituisce i doppi asterischi (**) con i tag <b> e </b>
+        # Questo cattura **parola** o **frase intera**
+        # Nota: L'uso di `\*\*([^\*]+)\*\*` cerca il testo tra doppi asterischi
+        testo_pulito = re.sub(r'\*\*([^\*]+)\*\*', r'<b>\1</b>', testo)
+
+        # 2. Rimuove l'intestazione standard "Segno, Giorno Mese Anno." (come nell'ultima versione)
+        pattern_data_segno = r"^[A-Z][a-z]+, \d{1,2} [A-Z][a-z]+ \d{4}\.?"
+        testo_pulito = re.sub(pattern_data_segno, '', testo_pulito, 1).strip()
+        
+        # 3. Rimuove la prima riga se contiene solo il nome del segno
+        if testo_pulito.lower().startswith(segno.lower()):
+            testo_pulito = re.sub(r"^\w+\s*,?\s*", '', testo_pulito, 1).strip()
+            
+        # 4. Rimuove eventuali a capo residui
+        testo_pulito = testo_pulito.lstrip('\n').strip()
+        
+        oroscopi[segno] = testo_pulito if testo_pulito else testo
+
     except APIError as e:
-        # Gestisce errori API
         print(f"ATTENZIONE: Errore API Gemini per {segno}: {e}")
         oroscopi[segno] = f"Errore API Gemini: {e}"
         
     except Exception as e:
-        # Gestisce altri errori imprevisti
         print(f"ERRORE GRAVE per {segno}: {e}")
         oroscopi[segno] = f"Errore Imprevisto: {e}"
 
-    # Breve ritardo per evitare problemi di rate limit
     time.sleep(1) 
 
 # --- Salvataggio in JSON ---
@@ -77,7 +90,6 @@ try:
 except FileNotFoundError:
     data = {}
 except json.JSONDecodeError:
-    # Se il file esiste ma è vuoto o corrotto
     print("[ATTENZIONE] Il file oroscopo.json è corrotto o vuoto. Creazione di un nuovo file.")
     data = {}
 
