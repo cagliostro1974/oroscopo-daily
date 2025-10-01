@@ -1,1 +1,16 @@
-{}
+{
+  "2025-10-01": {
+    "Ariete": "Errore nel generare l'oroscopo.",
+    "Toro": "Errore nel generare l'oroscopo.",
+    "Gemelli": "Errore nel generare l'oroscopo.",
+    "Cancro": "Errore nel generare l'oroscopo.",
+    "Leone": "Errore nel generare l'oroscopo.",
+    "Vergine": "Errore nel generare l'oroscopo.",
+    "Bilancia": "Errore nel generare l'oroscopo.",
+    "Scorpione": "Errore nel generare l'oroscopo.",
+    "Sagittario": "Errore nel generare l'oroscopo.",
+    "Capricorno": "Errore nel generare l'oroscopo.",
+    "Acquario": "Errore nel generare l'oroscopo.",
+    "Pesci": "Errore nel generare l'oroscopo."
+  }
+}
