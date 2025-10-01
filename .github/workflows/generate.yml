@@ -2,7 +2,7 @@ name: Genera Oroscopo Giornaliero
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # 23:00 UTC ≈ 00:00 Italia
+    - cron: "0 23 * * *"    # 23:00 UTC ≈ 00:00 Italia
   workflow_dispatch:
 
 permissions:
@@ -11,10 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # fornisce il token HF a tutte le steps del job
-    env:
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    
+    # Rimosso HF_TOKEN da qui. Il Secret GEMINI_API_KEY viene letto automaticamente dal codice Python.
 
     steps:
       - name: Checkout repository
@@ -26,9 +24,11 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
+        # Installa la libreria di Google Gemini e requests
         run: pip install google-genai requests
 
       - name: Generate horoscope
+        # Esegue il file Python. Leggerà GEMINI_API_KEY dai Secrets.
         run: python generate.py
 
       - name: Commit changes
