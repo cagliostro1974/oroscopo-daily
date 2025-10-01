@@ -5,7 +5,7 @@ from datetime import date
 
 # Legge il token HuggingFace dai secrets GitHub
 HF_TOKEN = os.getenv("HF_TOKEN")
-MODEL = "google/flan-t5-base"
+MODEL = "bigscience/bloomz-560m"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}",
@@ -65,3 +65,4 @@ with open(filename, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 
 print("[OK] oroscopo.json aggiornato.")
+
