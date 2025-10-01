@@ -1,30 +1,50 @@
-import json, datetime, os
-from openai import OpenAI
+import requests
+import os
+import json
+from datetime import date
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Legge token HuggingFace dai secrets
+HF_TOKEN = os.getenv("HF_TOKEN")
+MODEL = "tiiuae/falcon-7b-instruct"
 
-oggi = datetime.date.today().isoformat()
-segni = ["Ariete","Toro","Gemelli","Cancro","Leone","Vergine",
-         "Bilancia","Scorpione","Sagittario","Capricorno","Acquario","Pesci"]
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/json"
+}
 
-data = {}
+oggi = str(date.today())
+
+segni = [
+    "Ariete", "Toro", "Gemelli", "Cancro", "Leone", "Vergine",
+    "Bilancia", "Scorpione", "Sagittario", "Capricorno", "Acquario", "Pesci"
+]
+
+oroscopi = {}
+
 for segno in segni:
-    prompt = f"Scrivi un oroscopo di massimo 80 parole per il segno {segno} del giorno {oggi}. Deve includere amore, lavoro e un consiglio."
-    risposta = client.chat.completions.create(
-        model="gpt-4o-mini",  # modello veloce/economico
-        messages=[{"role":"user","content":prompt}]
+    prompt = f"Scrivi un oroscopo giornaliero creativo e diverso per il segno {segno} per la data {oggi}. Non ripetere frasi generiche, non scrivere sulla salute, concentrati su amore, lavoro e fortuna."
+    
+    response = requests.post(
+        f"https://api-inference.huggingface.co/models/{MODEL}",
+        headers=headers,
+        json={"inputs": prompt, "parameters": {"max_new_tokens": 180}}
     )
-    testo = risposta.choices[0].message.content.strip()
-    data[segno] = testo
+    
+    if response.status_code == 200:
+        testo = response.json()[0]["generated_text"]
+        oroscopi[segno] = testo.strip()
+    else:
+        oroscopi[segno] = "Errore nel generare l'oroscopo."
 
-# Salva nel file JSON, aggiungendo la data corrente
+# Salva in JSON
+filename = "oroscopo.json"
 try:
-    with open("oroscopo.json","r",encoding="utf-8") as f:
-        storico = json.load(f)
-except:
-    storico = {}
+    with open(filename, "r") as f:
+        data = json.load(f)
+except FileNotFoundError:
+    data = {}
 
-storico[oggi] = data
+data[oggi] = oroscopi
 
-with open("oroscopo.json","w",encoding="utf-8") as f:
-    json.dump(storico, f, ensure_ascii=False, indent=2)
+with open(filename, "w") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
