@@ -5,15 +5,15 @@ from datetime import date
 import time 
 
 # --- Configurazione API ---
+# Modello: StarChat-alpha (più moderno)
+MODEL = "HuggingFaceH4/starchat-alpha" 
+API_URL = f"https://api-inference.huggingface.co/models/{MODEL}"
+
 # Legge il token HuggingFace dai secrets GitHub
 HF_TOKEN = os.getenv("HF_TOKEN")
-# Ritorna a 'gpt2', che è garantito essere ospitato nell'API di Inference
-MODEL = "gpt2" 
-API_URL = f"https://api-inference.huggingface.co/models/{MODEL}"
 
 # Verifica del Token
 if not HF_TOKEN:
-    # Uscita immediata se il token non è impostato
     print("[ERRORE] La variabile d'ambiente 'HF_TOKEN' non è impostata. Impossibile procedere.")
     exit(1)
 
@@ -36,13 +36,12 @@ oroscopi = {}
 for segno in segni:
     print(f"Generazione oroscopo per: {segno}...")
     
-    # Prompt ottimizzato
     prompt = (
         f"Scrivi un oroscopo giornaliero creativo e originale per il segno {segno} alla data {oggi}. "
         f"Includi solo amore, lavoro e fortuna, in tono poetico ma chiaro, massimo 80 parole."
     )
 
-    # Parametri per la generazione del testo (forzano la generazione e la creatività)
+    # Parametri per la generazione del testo
     payload = {
         "inputs": prompt,
         "parameters": {
@@ -62,7 +61,7 @@ for segno in segni:
             if isinstance(data, list) and len(data) > 0 and "generated_text" in data[0]:
                 testo_grezzo = data[0]["generated_text"].strip()
                 
-                # Pulizia del testo generato, nel caso il modello includa il prompt (tipico di gpt2)
+                # Pulizia del testo generato, essenziale con modelli di completamento
                 if testo_grezzo.startswith(prompt):
                     testo_pulito = testo_grezzo.replace(prompt, "", 1).strip()
                 else:
@@ -72,16 +71,17 @@ for segno in segni:
             else:
                 oroscopi[segno] = f"Errore: Formato risposta API inatteso. Dati: {data}"
                 
-        # Gestione di errori API (es. 429 Rate Limit)
+        # Gestione di errori API (es. 503 Service Unavailable, 429 Rate Limit, 404/401)
         else:
+            # Stampiamo anche il contenuto per debug in caso di errore
+            print(f"ATTENZIONE: Errore API per {segno}. Codice: {response.status_code}. Risposta: {response.text}")
             oroscopi[segno] = f"Errore API: {response.status_code} - {response.text}"
-            print(f"ATTENZIONE: Errore API per {segno}. Codice: {response.status_code}")
             
     except requests.exceptions.RequestException as e:
         oroscopi[segno] = f"Errore di connessione o timeout: {e}"
         print(f"ERRORE GRAVE: Errore di connessione per {segno}: {e}")
 
-    # Breve ritardo per non saturare l'API di Hugging Face
+    # Breve ritardo per non saturare l'API
     time.sleep(1) 
 
 # --- Salvataggio in JSON ---
