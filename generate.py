@@ -5,8 +5,8 @@ from datetime import date
 import time 
 
 # --- Configurazione API ---
-# Modello: StarChat-alpha (più moderno)
-MODEL = "HuggingFaceH4/starchat-alpha" 
+# Modello Alternativo: facebook/opt-1.3b
+MODEL = "facebook/opt-1.3b" 
 API_URL = f"https://api-inference.huggingface.co/models/{MODEL}"
 
 # Legge il token HuggingFace dai secrets GitHub
@@ -101,3 +101,4 @@ with open(filename, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 
 print("[OK] oroscopo.json aggiornato con successo.")
+
