@@ -12,7 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
-    # Rimosso HF_TOKEN da qui. Il Secret GEMINI_API_KEY viene letto automaticamente dal codice Python.
+    # AGGIUNTA QUESTA SEZIONE 'env' per esporre la chiave API
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
     steps:
       - name: Checkout repository
@@ -28,7 +30,7 @@ jobs:
         run: pip install google-genai requests
 
       - name: Generate horoscope
-        # Esegue il file Python. Leggerà GEMINI_API_KEY dai Secrets.
+        # Esegue il file Python. Ora vedrà la chiave nell'ambiente.
         run: python generate.py
 
       - name: Commit changes
