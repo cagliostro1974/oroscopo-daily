@@ -1,16 +1,16 @@
 {
   "2025-10-01": {
-    "Ariete": "Errore nel generare l'oroscopo.",
-    "Toro": "Errore nel generare l'oroscopo.",
-    "Gemelli": "Errore nel generare l'oroscopo.",
-    "Cancro": "Errore nel generare l'oroscopo.",
-    "Leone": "Errore nel generare l'oroscopo.",
-    "Vergine": "Errore nel generare l'oroscopo.",
-    "Bilancia": "Errore nel generare l'oroscopo.",
-    "Scorpione": "Errore nel generare l'oroscopo.",
-    "Sagittario": "Errore nel generare l'oroscopo.",
-    "Capricorno": "Errore nel generare l'oroscopo.",
-    "Acquario": "Errore nel generare l'oroscopo.",
-    "Pesci": "Errore nel generare l'oroscopo."
+    "Ariete": "Errore API HuggingFace: 404 Not Found",
+    "Toro": "Errore API HuggingFace: 404 Not Found",
+    "Gemelli": "Errore API HuggingFace: 404 Not Found",
+    "Cancro": "Errore API HuggingFace: 404 Not Found",
+    "Leone": "Errore API HuggingFace: 404 Not Found",
+    "Vergine": "Errore API HuggingFace: 404 Not Found",
+    "Bilancia": "Errore API HuggingFace: 404 Not Found",
+    "Scorpione": "Errore API HuggingFace: 404 Not Found",
+    "Sagittario": "Errore API HuggingFace: 404 Not Found",
+    "Capricorno": "Errore API HuggingFace: 404 Not Found",
+    "Acquario": "Errore API HuggingFace: 404 Not Found",
+    "Pesci": "Errore API HuggingFace: 404 Not Found"
   }
 }
