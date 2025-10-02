@@ -2,7 +2,8 @@ name: Genera Oroscopo Giornaliero
 
 on:
   schedule:
-    - cron: "0 23 * * *"    # 23:00 UTC ≈ 00:00 Italia
+    # 0 22 * * * significa 22:00 UTC, che è 00:00 Italia (CEST/CET)
+    - cron: "0 22 * * *" 
   workflow_dispatch:
 
 permissions:
@@ -12,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
-    # AGGIUNTA QUESTA SEZIONE 'env' per esporre la chiave API
+    # Espone la chiave API di Gemini all'ambiente Python
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
@@ -26,11 +27,10 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        # Installa la libreria di Google Gemini e requests
-        run: pip install google-genai requests
+        # AGGIUNTO 'pytz' per la gestione del fuso orario
+        run: pip install google-genai requests pytz
 
       - name: Generate horoscope
-        # Esegue il file Python. Ora vedrà la chiave nell'ambiente.
         run: python generate.py
 
       - name: Commit changes
