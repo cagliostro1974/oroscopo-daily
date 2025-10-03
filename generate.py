@@ -40,7 +40,7 @@ for segno in segni:
     print(f"Generazione oroscopo per: {segno}...")
     
     prompt = (
-        f"Scrivi un oroscopo giornaliero creativo e originale per il segno {segno} per oggi. "
+        f"Scrivi un oroscopo giornaliero per il segno {segno} per oggi. "
         f"Includi solo Amore, Lavoro e Fortuna, in tono poetico ma chiaro, massimo 80 parole."
         f"IMPORTANTE: INIZIA IL TESTO IMMEIDATAMENTE SENZA MAI INCLUDERE NOME DEL SEGNO O DATA. USA I TAG HTML <b> E </b> PER IL GRASSETTO, NON GLI ASTERISCHI."
     )
@@ -103,3 +103,4 @@ with open(filename, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 
 print("[OK] oroscopo.json aggiornato con successo.")
+
